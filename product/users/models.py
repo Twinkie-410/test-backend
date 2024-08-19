@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from courses.models import Course
+
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя - студента."""
@@ -29,6 +33,17 @@ class CustomUser(AbstractUser):
 class Balance(models.Model):
     """Модель баланса пользователя."""
 
+    user = models.OneToOneField(
+        to=get_user_model(),
+        on_delete=models.CASCADE,
+        verbose_name='пользователь'
+    )
+
+    balance = models.PositiveIntegerField(
+        default=1000,
+        verbose_name='баланс'
+    )
+
     # TODO
 
     class Meta:
@@ -39,6 +54,16 @@ class Balance(models.Model):
 
 class Subscription(models.Model):
     """Модель подписки пользователя на курс."""
+    user = models.ForeignKey(
+        to=get_user_model(),
+        on_delete=models.CASCADE,
+        verbose_name='пользователь'
+    )
+    course = models.ForeignKey(
+        to=Course,
+        on_delete=models.CASCADE,
+        verbose_name='курс'
+    )
 
     # TODO
 
@@ -46,4 +71,3 @@ class Subscription(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ('-id',)
-

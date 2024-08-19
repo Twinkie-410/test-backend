@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
@@ -17,7 +18,9 @@ class Course(models.Model):
         auto_now_add=False,
         verbose_name='Дата и время начала курса'
     )
-
+    price = models.PositiveIntegerField(
+        verbose_name='Стоимость'
+    )
     # TODO
 
     class Meta:
@@ -40,7 +43,11 @@ class Lesson(models.Model):
         max_length=250,
         verbose_name='Ссылка',
     )
-
+    course = models.ForeignKey(
+        to=Course,
+        on_delete=models.CASCADE,
+        verbose_name='курс'
+    )
     # TODO
 
     class Meta:
@@ -54,6 +61,20 @@ class Lesson(models.Model):
 
 class Group(models.Model):
     """Модель группы."""
+
+    name = models.CharField(
+        max_length=250,
+        verbose_name='Название',
+    )
+    course = models.ForeignKey(
+        to=Course,
+        on_delete=models.CASCADE,
+        verbose_name='курс'
+    )
+    student = models.ManyToManyField(
+        to=get_user_model(),
+        verbose_name='студенты'
+    )
 
     # TODO
 

@@ -13,5 +13,10 @@ def post_save_subscription(sender, instance: Subscription, created, **kwargs):
     """
 
     if created:
-        pass
+        group_min = (instance.course.group_set.prefetch_related("student").
+                     annotate(count=Count('student_set__id')).
+                     order_by('count').
+                     first()
+                     )
+        group_min.student.add(instance.user)
         # TODO
