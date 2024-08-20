@@ -21,7 +21,6 @@ class Course(models.Model):
     price = models.PositiveIntegerField(
         verbose_name='Стоимость'
     )
-    # TODO
 
     class Meta:
         verbose_name = 'Курс'
@@ -46,9 +45,9 @@ class Lesson(models.Model):
     course = models.ForeignKey(
         to=Course,
         on_delete=models.CASCADE,
+        related_name='lessons',
         verbose_name='курс'
     )
-    # TODO
 
     class Meta:
         verbose_name = 'Урок'
@@ -62,21 +61,20 @@ class Lesson(models.Model):
 class Group(models.Model):
     """Модель группы."""
 
-    name = models.CharField(
+    title = models.CharField(
         max_length=250,
         verbose_name='Название',
     )
     course = models.ForeignKey(
         to=Course,
         on_delete=models.CASCADE,
+        related_name='groups',
         verbose_name='курс'
     )
     student = models.ManyToManyField(
         to=get_user_model(),
         verbose_name='студенты'
     )
-
-    # TODO
 
     class Meta:
         verbose_name = 'Группа'

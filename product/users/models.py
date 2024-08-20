@@ -44,8 +44,6 @@ class Balance(models.Model):
         verbose_name='баланс'
     )
 
-    # TODO
-
     class Meta:
         verbose_name = 'Баланс'
         verbose_name_plural = 'Балансы'
@@ -64,8 +62,6 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name='курс'
     )
-
-    # TODO
 
     class Meta:
         verbose_name = 'Подписка'

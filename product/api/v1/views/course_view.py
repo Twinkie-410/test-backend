@@ -3,14 +3,14 @@ from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.v1.permissions import IsStudentOrIsAdmin, ReadOnlyOrIsAdmin
+from api.v1.permissions import IsStudentOrIsAdmin, ReadOnlyOrIsAdmin, make_payment
 from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   CreateCourseSerializer,
                                                   CreateGroupSerializer,
                                                   CreateLessonSerializer,
                                                   GroupSerializer,
                                                   LessonSerializer)
-from api.v1.serializers.user_serializer import SubscriptionSerializer
+
 from courses.models import Course
 from users.models import Subscription
 
@@ -71,10 +71,40 @@ class CourseViewSet(viewsets.ModelViewSet):
     )
     def pay(self, request, pk):
         """Покупка доступа к курсу (подписка на курс)."""
+        queryset = self.queryset.exclude(subscription__user=request.user)
+        try:
+            course = queryset.get(id=pk)
+        except Course.DoesNotExist:
+            return Response(
+                data={"detail": "No Course matches the given query."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        # TODO
+        if not make_payment(request, course.price):
+            return Response(
+                data={"fail": "insufficient funds"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        Subscription.objects.create(
+            user=request.user,
+            course=course
+        )
 
         return Response(
-            data=data,
+            data={"OK": "Success"},
             status=status.HTTP_201_CREATED
+        )
+
+    @action(
+        detail=False,
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def available(self, request):
+        "Доступные курсы"
+        courses = self.queryset.exclude(subscription__user=request.user)
+        serializer = CourseSerializer(courses, many=True)
+        return Response(
+            data=serializer.data,
+            status=status.HTTP_200_OK
         )
